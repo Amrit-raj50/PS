@@ -2,11 +2,9 @@
 
 # 🚀 SIH 2026 - Societal Innovation Portal
 
-## Complete Team Guide (Easy English)
-
 ---
 
-## 📖 1. What Are We Building? (Problem Statement in Easy Words)
+## 📖 1. What Are We Building? 
 
 ### The Problem:
 People in Jharkhand face many problems every day:
