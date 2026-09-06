@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backend Architecture Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy: #0E2A47;
+    --navy-deep: #081B30;
+    --grid: #1B3A5C;
+    --ink: #EAF2F8;
+    --ink-dim: #A9C2D6;
+    --amber: #E8A33D;
+    --steel: #5FA8D3;
+    --line: #2C4E71;
+    --max: 880px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0/32px 32px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/32px 32px,
+      var(--navy);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.65;
+  }
+  code, .mono, table, pre{ font-family:'IBM Plex Mono', monospace; }
+
+  a{ color:var(--amber); text-decoration:none; border-bottom:1px solid rgba(232,163,61,.4); }
+  a:hover{ border-bottom-color:var(--amber); }
+
+  /* ---------- Layout shell ---------- */
+  .shell{
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    max-width:1240px;
+    margin:0 auto;
+  }
+  @media (max-width: 860px){
+    .shell{ grid-template-columns: 1fr; }
+    .sidebar{ position:static !important; border-right:none !important; border-bottom:1px solid var(--line); }
+  }
+
+  /* ---------- Sidebar / sheet index ---------- */
+  .sidebar{
+    position:sticky; top:0; align-self:start; height:100vh;
+    padding:32px 20px;
+    border-right:1px solid var(--line);
+    overflow-y:auto;
+  }
+  .sidebar .mark{
+    font-size:11px; letter-spacing:.12em; color:var(--steel);
+    margin-bottom:6px;
+  }
+  .sidebar h2{
+    font-size:15px; margin:0 0 22px; color:var(--ink); font-weight:600;
+  }
+  .sheet-list{ list-style:none; margin:0; padding:0; }
+  .sheet-list li{ margin-bottom:2px; }
+  .sheet-list a{
+    display:flex; gap:10px; align-items:baseline;
+    padding:7px 8px; border:none; border-radius:2px;
+    color:var(--ink-dim); font-size:13px;
+  }
+  .sheet-list a:hover{ background:rgba(95,168,211,.1); color:var(--ink); }
+  .sheet-list .num{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--amber);
+    flex-shrink:0; width:22px;
+  }
+
+  /* ---------- Main column ---------- */
+  main{ padding:56px 48px 100px; max-width:var(--max); }
+  @media (max-width:640px){ main{ padding:36px 20px 80px; } }
+
+  /* Title block, like a real blueprint cover sheet */
+  .titleblock{
+    border:1px solid var(--line);
+    padding:28px 30px;
+    margin-bottom:56px;
+    position:relative;
+  }
+  .titleblock::before, .titleblock::after,
+  .titleblock .tl-tr, .titleblock .tl-bl{
+    content:""; position:absolute; width:14px; height:14px;
+    border-color:var(--amber); border-style:solid; border-width:0;
+  }
+  .titleblock::before{ top:-1px; left:-1px; border-top-width:2px; border-left-width:2px; }
+  .titleblock .tl-tr{ top:-1px; right:-1px; border-top-width:2px; border-right-width:2px; }
+  .titleblock .tl-bl{ bottom:-1px; left:-1px; border-bottom-width:2px; border-left-width:2px; }
+  .titleblock::after{ bottom:-1px; right:-1px; border-bottom-width:2px; border-right-width:2px; }
+
+  .kicker{
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    color:var(--steel); letter-spacing:.04em; margin-bottom:14px;
+  }
+  h1.title{
+    font-size:clamp(28px, 4vw, 40px);
+    margin:0 0 12px; font-weight:700; color:var(--ink);
+    line-height:1.15;
+  }
+  .subtitle{ color:var(--ink-dim); font-size:16px; max-width:60ch; margin:0 0 22px; }
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap:24px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-dim);
+    border-top:1px solid var(--line); padding-top:16px;
+  }
+  .meta-row strong{ color:var(--ink); display:block; font-size:11px; margin-bottom:2px; font-weight:500;}
+
+  /* Sections */
+  section{ margin-bottom:64px; scroll-margin-top:24px; }
+  .sheet-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--amber);
+    letter-spacing:.08em; margin-bottom:8px;
+  }
+  h2{
+    font-size:22px; font-weight:600; margin:0 0 18px; color:var(--ink);
+    padding-bottom:12px; border-bottom:1px solid var(--line);
+  }
+  h3{ font-size:16px; font-weight:600; color:var(--steel); margin:28px 0 10px; }
+  p{ color:var(--ink-dim); margin:0 0 14px; max-width:72ch; }
+  ul, ol{ color:var(--ink-dim); max-width:72ch; padding-left:22px; }
+  li{ margin-bottom:6px; }
+  li strong{ color:var(--ink); }
+
+  /* Tables — styled like a blueprint schedule */
+  .tablewrap{ overflow-x:auto; border:1px solid var(--line); margin-bottom:20px; }
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th{
+    background:rgba(95,168,211,.08);
+    color:var(--steel); text-align:left; font-weight:600;
+    padding:10px 14px; border-bottom:1px solid var(--line);
+    font-size:11.5px; letter-spacing:.03em;
+  }
+  td{
+    padding:10px 14px; border-bottom:1px solid var(--grid);
+    color:var(--ink-dim); vertical-align:top;
+  }
+  tr:last-child td{ border-bottom:none; }
+  td strong, td code{ color:var(--ink); }
+  code{
+    background:rgba(234,242,248,.06); padding:1px 6px; border-radius:2px;
+    font-size:.9em; color:var(--ink);
+  }
+
+  /* Folder tree / code block */
+  pre{
+    background:var(--navy-deep); border:1px solid var(--line);
+    padding:20px 22px; overflow-x:auto; font-size:12.5px; line-height:1.7;
+    color:var(--ink-dim); margin:0 0 20px;
+  }
+  pre .k{ color:var(--amber); }
+  pre .c{ color:var(--steel); }
+
+  /* Diagram frame */
+  .diagram{
+    border:1px solid var(--line); padding:20px; margin-bottom:20px;
+    background:rgba(8,27,48,.4);
+  }
+  .diagram svg{ width:100%; height:auto; display:block; }
+  .diagram-caption{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--steel);
+    margin-top:10px; letter-spacing:.03em;
+  }
+
+  .callout{
+    border-left:2px solid var(--amber);
+    background:rgba(232,163,61,.06);
+    padding:14px 18px; margin-bottom:20px; color:var(--ink-dim); font-size:14px;
+  }
+  .callout strong{ color:var(--ink); }
+
+  .flow-list{ counter-reset:flow; list-style:none; padding:0; }
+  .flow-list li{
+    counter-increment:flow; position:relative; padding-left:36px; margin-bottom:14px;
+    color:var(--ink-dim); font-size:14px;
+  }
+  .flow-list li::before{
+    content:counter(flow);
+    position:absolute; left:0; top:0;
+    width:22px; height:22px; border:1px solid var(--amber); color:var(--amber);
+    font-family:'IBM Plex Mono', monospace; font-size:11px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .flow-list li strong{ color:var(--ink); }
+
+  footer{
+    max-width:var(--max); margin:0 48px 60px; padding-top:24px;
+    border-top:1px solid var(--line);
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-dim);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+  @media (max-width:640px){ footer{ margin:0 20px 60px; } }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <nav class="sidebar">
+    <div class="mark">SHEET INDEX</div>
+    <h2>Backend Blueprint</h2>
+    <ul class="sheet-list">
+      <li><a href="#overview"><span class="num">01</span>System Overview</a></li>
+      <li><a href="#stack"><span class="num">02</span>Technology Stack</a></li>
+      <li><a href="#folders"><span class="num">03</span>Folder Structure</a></li>
+      <li><a href="#data"><span class="num">04</span>Data Model</a></li>
+      <li><a href="#api"><span class="num">05</span>API Specification</a></li>
+      <li><a href="#flow"><span class="num">06</span>Core Data Flow</a></li>
+      <li><a href="#security"><span class="num">07</span>Security Model</a></li>
+      <li><a href="#integration"><span class="num">08</span>Integration Contracts</a></li>
+      <li><a href="#env"><span class="num">09</span>Environment Config</a></li>
+      <li><a href="#errors"><span class="num">10</span>Error Handling</a></li>
+      <li><a href="#deploy"><span class="num">11</span>Deployment</a></li>
+      <li><a href="#checklist"><span class="num">12</span>Task Checklist</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <div class="titleblock">
+      <span class="tl-tr"></span><span class="tl-bl"></span>
+      <div class="kicker">DESIGN SPECIFICATION — NO SOURCE CODE INCLUDED</div>
+      <h1 class="title">Backend Architecture Blueprint</h1>
+      <p class="subtitle">Civic problem-reporting platform: a citizen → university → industry pipeline, routed through an AI classification worker.</p>
+      <div class="meta-row">
+        <div><strong>Sheet set</strong>01 of 12</div>
+        <div><strong>Audience</strong>Backend, DevOps, reviewers</div>
+        <div><strong>Status</strong>Draft for build-out</div>
+        <div><strong>Revision</strong>1.0</div>
+      </div>
+    </div>
+
+    <section id="overview">
+      <div class="sheet-tag">SHEET 01 / SYSTEM OVERVIEW</div>
+      <h2>1. System Overview</h2>
+      <p>Citizens report civic problems — potholes, water pollution, and similar issues. Each report is routed through an AI worker for classification, then connected to a university (which proposes a solution) and an industry partner (which funds it).</p>
+
+      <h3>Actors</h3>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Role</th><th>Capabilities</th></tr>
+          <tr><td><strong>Citizen</strong></td><td>Submit problems, view own submissions</td></tr>
+          <tr><td><strong>Admin</strong></td><td>Verify / assign problems, view platform-wide stats</td></tr>
+          <tr><td><strong>University</strong></td><td>Submit proposals for assigned problems</td></tr>
+          <tr><td><strong>Industry</strong></td><td>Fund approved proposals</td></tr>
+          <tr><td><strong>AI Worker</strong></td><td>System actor — classifies problems via the internal API</td></tr>
+        </table>
+      </div>
+
+      <h3>High-level architecture</h3>
+      <div class="diagram">
+        <svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg">
+          <style>
+            .box{ fill:none; stroke:#5FA8D3; stroke-width:1.5; }
+            .lbl{ fill:#EAF2F8; font-family:'IBM Plex Mono', monospace; font-size:12px; }
+            .sub{ fill:#A9C2D6; font-family:'IBM Plex Mono', monospace; font-size:10px; }
+            .line{ stroke:#5FA8D3; stroke-width:1.5; fill:none; }
+            .dashed{ stroke:#E8A33D; stroke-width:1.5; fill:none; stroke-dasharray:5,4; }
+            .arrow{ fill:#5FA8D3; }
+            .arrowA{ fill:#E8A33D; }
+          </style>
+          <rect class="box" x="20" y="30" width="140" height="60"/>
+          <text class="lbl" x="90" y="55" text-anchor="middle">Frontend</text>
+          <text class="sub" x="90" y="72" text-anchor="middle">(React)</text>
+
+          <rect class="box" x="300" y="30" width="160" height="60"/>
+          <text class="lbl" x="380" y="55" text-anchor="middle">Express API</text>
+          <text class="sub" x="380" y="72" text-anchor="middle">Backend</text>
+
+          <rect class="box" x="580" y="10" width="160" height="100"/>
+          <text class="lbl" x="660" y="35" text-anchor="middle">PostgreSQL</text>
+          <text class="lbl" x="660" y="55" text-anchor="middle">MongoDB</text>
+          <text class="lbl" x="660" y="75" text-anchor="middle">Redis</text>
+
+          <rect class="box" x="300" y="170" width="160" height="60"/>
+          <text class="lbl" x="380" y="195" text-anchor="middle">AI Worker</text>
+          <text class="sub" x="380" y="212" text-anchor="middle">separate process</text>
+
+          <!-- frontend <-> api (socket, http) -->
+          <line class="line" x1="160" y1="55" x2="298" y2="55" marker-end="url(#arrowB)"/>
+          <line class="line" x1="298" y1="65" x2="160" y2="65" marker-end="url(#arrowB)"/>
+          <text class="sub" x="228" y="45" text-anchor="middle">HTTP</text>
+
+          <!-- api <-> db -->
+          <line class="line" x1="460" y1="60" x2="578" y2="60" marker-end="url(#arrowB)"/>
+
+          <!-- api <-> worker -->
+          <path class="dashed" d="M380,90 L380,168" marker-end="url(#arrowA)"/>
+          <text class="sub" x="392" y="130">Redis queue</text>
+          <path class="line" d="M420,168 L420,90" marker-end="url(#arrowB)"/>
+          <text class="sub" x="432" y="150">PATCH /internal</text>
+
+          <!-- socket line from api up to frontend, curved -->
+          <path class="dashed" d="M90,30 C90,-10 380,-10 380,28" marker-end="url(#arrowA)"/>
+          <text class="sub" x="235" y="8" text-anchor="middle">Socket.io (live events)</text>
+
+          <defs>
+            <marker id="arrowB" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#5FA8D3"/>
+            </marker>
+            <marker id="arrowA" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#E8A33D"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">FIG 1.1 — solid steel-blue: request/response · dashed amber: async queue &amp; realtime channels</div>
+      </div>
+    </section>
+
+    <section id="stack">
+      <div class="sheet-tag">SHEET 02 / TECHNOLOGY STACK</div>
+      <h2>2. Technology Stack</h2>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+          <tr><td>Runtime</td><td><code>Node.js + TypeScript</code></td><td>Type-safe backend</td></tr>
+          <tr><td>Framework</td><td><code>Express.js</code></td><td>HTTP routing</td></tr>
+          <tr><td>Primary DB</td><td><code>PostgreSQL</code></td><td>Relational, transactional data</td></tr>
+          <tr><td>Secondary DB</td><td><code>MongoDB</code></td><td>Logs, notifications, unstructured data</td></tr>
+          <tr><td>Cache / Queue</td><td><code>Redis + BullMQ</code></td><td>Job queue, caching, session storage</td></tr>
+          <tr><td>Realtime</td><td><code>Socket.io</code></td><td>Live dashboard updates</td></tr>
+          <tr><td>File storage</td><td><code>Cloudinary</code></td><td>Image hosting for problem photos</td></tr>
+          <tr><td>Auth</td><td><code>JWT</code></td><td>Stateless authentication</td></tr>
+          <tr><td>Validation</td><td><code>Zod / Joi</code></td><td>Request payload validation</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="folders">
+      <div class="sheet-tag">SHEET 03 / FOLDER STRUCTURE</div>
+      <h2>3. Folder Structure</h2>
+      <pre><span class="c">apps/api/src/</span>
+│
+├── config/
+│   ├── database.postgres.ts     <span class="k">Pool connection, retry logic</span>
+│   ├── database.mongo.ts        <span class="k">Mongoose connection</span>
+│   ├── redis.client.ts          <span class="k">Redis connection + reconnect strategy</span>
+│   └── cloudinary.ts            <span class="k">Upload preset + API credentials</span>
+│
+├── models/
+│   ├── User.model.ts             id, name, email, passwordHash, role, org
+│   ├── Problem.model.ts          id, title, desc, category, priority, status, geo, media[]
+│   ├── Project.model.ts          id, problemId, universityId, proposal, budget, milestones[]
+│   └── Notification.model.ts     id, userId, message, type, read, createdAt (Mongo)
+│
+├── middleware/
+│   ├── auth.middleware.ts        <span class="k">JWT verification</span>
+│   ├── rbac.middleware.ts        <span class="k">Role-based route gating</span>
+│   ├── validate.middleware.ts    <span class="k">Schema validation wrapper</span>
+│   └── error.handler.ts          <span class="k">Centralized error formatting</span>
+│
+├── routes/
+│   ├── auth.routes.ts
+│   ├── problem.routes.ts
+│   ├── project.routes.ts
+│   ├── internal.routes.ts        <span class="k">AI-only, key-gated</span>
+│   └── notification.routes.ts
+│
+├── controllers/
+│   ├── auth.controller.ts
+│   ├── problem.controller.ts
+│   ├── project.controller.ts
+│   └── internal.controller.ts
+│
+├── services/
+│   ├── allocation.service.ts     <span class="k">University-matching logic</span>
+│   ├── state.machine.ts          <span class="k">Status transition rules</span>
+│   └── notification.service.ts   <span class="k">Fan-out to Socket.io + Mongo log</span>
+│
+├── queue/
+│   ├── producer.queue.ts         <span class="k">Enqueues classification jobs</span>
+│   └── worker.queue.ts           <span class="k">Separate process; consumes jobs</span>
+│
+├── socket/
+│   └── index.socket.ts           <span class="k">Room management, event emission</span>
+│
+├── utils/
+│   ├── validators.ts
+│   ├── logger.ts
+│   └── constants.ts
+│
+└── server.ts                     <span class="k">Entry point</span></pre>
+    </section>
+
+    <section id="data">
+      <div class="sheet-tag">SHEET 04 / DATA MODEL</div>
+      <h2>4. Data Model</h2>
+
+      <h3>4.1 PostgreSQL — Relational Core</h3>
+      <p><strong>users</strong></p>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+          <tr><td>id</td><td>UUID (PK)</td><td></td></tr>
+          <tr><td>full_name</td><td>text</td><td></td></tr>
+          <tr><td>email</td><td>text</td><td>unique, indexed</td></tr>
+          <tr><td>password_hash</td><td>text</td><td>bcrypt</td></tr>
+          <tr><td>role</td><td>enum</td><td>citizen, admin, university, industry</td></tr>
+          <tr><td>organization</td><td>text</td><td>nullable</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td></td></tr>
+        </table>
+      </div>
+
+      <p><strong>problems</strong></p>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+          <tr><td>id</td><td>UUID (PK)</td><td></td></tr>
+          <tr><td>title / description</td><td>text</td><td></td></tr>
+          <tr><td>category</td><td>enum</td><td>water, road, health, other — nullable until AI classifies</td></tr>
+          <tr><td>priority</td><td>enum</td><td>low, medium, high</td></tr>
+          <tr><td>status</td><td>enum</td><td>submitted → verified → assigned → in_progress → resolved</td></tr>
+          <tr><td>latitude / longitude</td><td>numeric</td><td></td></tr>
+          <tr><td>district</td><td>text</td><td></td></tr>
+          <tr><td>image_urls</td><td>text[]</td><td></td></tr>
+          <tr><td>submitted_by</td><td>UUID (FK → users)</td><td></td></tr>
+          <tr><td>assigned_university</td><td>UUID (FK → users, nullable)</td><td></td></tr>
+          <tr><td>ai_confidence</td><td>numeric</td><td>nullable</td></tr>
+          <tr><td>created_at / updated_at</td><td>timestamptz</td><td></td></tr>
+        </table>
+      </div>
+
+      <p><strong>projects</strong></p>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+          <tr><td>id</td><td>UUID (PK)</td><td></td></tr>
+          <tr><td>problem_id</td><td>UUID (FK → problems)</td><td></td></tr>
+          <tr><td>university_id</td><td>UUID (FK → users)</td><td></td></tr>
+          <tr><td>industry_partner_id</td><td>UUID (FK → users, nullable)</td><td></td></tr>
+          <tr><td>proposal_text</td><td>text</td><td></td></tr>
+          <tr><td>status</td><td>enum</td><td>proposed, under_review, active, completed</td></tr>
+          <tr><td>budget</td><td>numeric</td><td></td></tr>
+          <tr><td>milestones</td><td>jsonb</td><td>array of {title, dueDate, done}</td></tr>
+        </table>
+      </div>
+
+      <h3>4.2 MongoDB — Logs &amp; Notifications</h3>
+      <ul>
+        <li><strong>notifications</strong> — <code>{ userId, message, type, read, createdAt }</code></li>
+        <li><strong>audit_logs</strong> — <code>{ eventType, payload, timestamp, source }</code>, raw backups, AI timing, error traces</li>
+      </ul>
+
+      <h3>4.3 Redis</h3>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Key pattern</th><th>Purpose</th><th>TTL</th></tr>
+          <tr><td><code>session:{userId}</code></td><td>Token cache</td><td>matches JWT expiry</td></tr>
+          <tr><td><code>queue:classification</code></td><td>BullMQ job list</td><td>until processed</td></tr>
+          <tr><td><code>cache:stats:dashboard</code></td><td>Aggregated counts</td><td>5 min</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="api">
+      <div class="sheet-tag">SHEET 05 / API SPECIFICATION</div>
+      <h2>5. API Specification</h2>
+
+      <h3>Auth</h3>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Method</th><th>Endpoint</th><th>Access</th><th>Logic</th></tr>
+          <tr><td>POST</td><td><code>/api/auth/register</code></td><td>Public</td><td>Validate → check duplicate email → hash password → insert → return user</td></tr>
+          <tr><td>POST</td><td><code>/api/auth/login</code></td><td>Public</td><td>Find email → compare hash → sign JWT → return <code>{ token, user }</code></td></tr>
+          <tr><td>GET</td><td><code>/api/auth/me</code></td><td>Authenticated</td><td>Decode token → fetch fresh row → return</td></tr>
+        </table>
+      </div>
+
+      <h3>Problems</h3>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Method</th><th>Endpoint</th><th>Access</th><th>Logic</th></tr>
+          <tr><td>POST</td><td><code>/api/problems</code></td><td>Citizen</td><td>Upload image(s) to Cloudinary → insert row (status=submitted) → enqueue job → respond 202 immediately</td></tr>
+          <tr><td>GET</td><td><code>/api/problems</code></td><td>All</td><td>Filter by category / district / status; paginate; join submitter name</td></tr>
+          <tr><td>GET</td><td><code>/api/problems/:id</code></td><td>All</td><td>Fetch + join submitter + assigned university</td></tr>
+          <tr><td>PUT</td><td><code>/api/problems/:id/assign</code></td><td>Admin</td><td>Validate status=verified → validate university → set status=assigned → create project stub → emit event</td></tr>
+          <tr><td>GET</td><td><code>/api/problems/stats</code></td><td>Admin</td><td>Aggregate counts by category/district/status, cached 5 min</td></tr>
+        </table>
+      </div>
+
+      <h3>Projects</h3>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Method</th><th>Endpoint</th><th>Access</th><th>Logic</th></tr>
+          <tr><td>POST</td><td><code>/api/projects/:id/proposal</code></td><td>University</td><td>Verify assignment ownership → save proposal/budget/milestones → set status=under_review → notify industry</td></tr>
+          <tr><td>PUT</td><td><code>/api/projects/:id/fund</code></td><td>Industry</td><td>Verify status=under_review → set status=active → update problem to in_progress → notify university + admin</td></tr>
+        </table>
+      </div>
+
+      <h3>Internal (AI-only)</h3>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Method</th><th>Endpoint</th><th>Access</th><th>Logic</th></tr>
+          <tr><td>PATCH</td><td><code>/api/internal/problems/:id</code></td><td><code>x-internal-api-key</code></td><td>Validate key → update category/priority/confidence → set status=verified → notify admin</td></tr>
+        </table>
+      </div>
+
+      <h3>Notifications</h3>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Method</th><th>Endpoint</th><th>Access</th><th>Logic</th></tr>
+          <tr><td>GET</td><td><code>/api/notifications</code></td><td>Authenticated</td><td>Return unread-first list from Mongo</td></tr>
+          <tr><td>PATCH</td><td><code>/api/notifications/:id/read</code></td><td>Authenticated</td><td>Mark single notification read</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div class="sheet-tag">SHEET 06 / CORE DATA FLOW</div>
+      <h2>6. Core Data Flow</h2>
+      <ol class="flow-list">
+        <li><strong>Citizen</strong> submits <code>POST /problems</code> → Postgres insert (status=submitted)</li>
+        <li><strong>Backend</strong> pushes a job onto the Redis queue: <code>{ problemId, text }</code></li>
+        <li><strong>Backend</strong> responds in under 200ms — it does not wait for classification</li>
+        <li><strong>Worker</strong> picks the job up from Redis</li>
+        <li><strong>Worker</strong> runs classification → category, priority, confidence</li>
+        <li><strong>Worker</strong> calls <code>PATCH /internal/problems/:id</code> with the <code>x-internal-api-key</code> header</li>
+        <li><strong>Backend</strong> validates the key, updates the row, sets status=verified</li>
+        <li><strong>Backend</strong> emits <code>problem_verified</code> to the admin room via Socket.io</li>
+        <li><strong>Admin</strong> calls <code>PUT /problems/:id/assign</code></li>
+        <li><strong>Backend</strong> sets status=assigned and inserts a project stub</li>
+        <li><strong>Backend</strong> emits <code>problem_assigned</code> to the assigned university's room</li>
+      </ol>
+    </section>
+
+    <section id="security">
+      <div class="sheet-tag">SHEET 07 / SECURITY MODEL</div>
+      <h2>7. Security Model</h2>
+      <ul>
+        <li><strong>JWT</strong> required on every route except <code>/auth/login</code> and <code>/auth/register</code>, verified by <code>auth.middleware</code>.</li>
+        <li><strong>RBAC</strong> middleware runs after auth and checks the <code>role</code> claim: assign → admin only, problem creation → citizen only, proposals → university only, funding → industry only.</li>
+        <li><strong>Internal API key</strong> is a static secret compared with constant-time comparison, never exposed to the frontend.</li>
+        <li><strong>Rate limiting</strong> recommended on <code>/auth/*</code> and <code>POST /problems</code> to prevent abuse.</li>
+        <li><strong>Input validation</strong> on every mutating route before it reaches the controller.</li>
+      </ul>
+    </section>
+
+    <section id="integration">
+      <div class="sheet-tag">SHEET 08 / INTEGRATION CONTRACTS</div>
+      <h2>8. Integration Contracts</h2>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Link</th><th>Method</th><th>Payload</th><th>Notes</th></tr>
+          <tr><td>Backend → Worker</td><td>Redis / BullMQ</td><td><code>{ problemId, text }</code></td><td>Fire-and-forget, no response awaited</td></tr>
+          <tr><td>Worker → Backend</td><td>HTTP PATCH</td><td><code>{ category, priority, confidence }</code></td><td>Auth via static key header</td></tr>
+          <tr><td>Backend → Frontend</td><td>Socket.io</td><td><code>problem_verified</code>, <code>problem_assigned</code>, <code>project_funded</code></td><td>Room-scoped, e.g. <code>room_university_{id}</code></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="env">
+      <div class="sheet-tag">SHEET 09 / ENVIRONMENT CONFIG</div>
+      <h2>9. Environment Configuration</h2>
+      <pre>DATABASE_URL=postgres://...
+MONGO_URI=mongodb://...
+REDIS_URL=redis://...
+JWT_SECRET=...
+JWT_EXPIRES_IN=7d
+INTERNAL_API_KEY=...
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+PORT=4000
+NODE_ENV=production</pre>
+    </section>
+
+    <section id="errors">
+      <div class="sheet-tag">SHEET 10 / ERROR HANDLING</div>
+      <h2>10. Error Handling Strategy</h2>
+      <p>Controllers wrap logic in try/catch and forward errors to <code>error.handler</code> via <code>next(err)</code>. Standard error shape:</p>
+      <pre>{ "error": { "code": "VALIDATION_ERROR", "message": "Title must be at least 5 characters" } }</pre>
+      <p>Status mapping: <code>400</code> validation · <code>401</code> unauthenticated · <code>403</code> unauthorized role · <code>404</code> not found · <code>409</code> invalid state transition · <code>500</code> unhandled.</p>
+      <div class="callout"><strong>Do not</strong> leak stack traces or raw DB errors in production responses — log them server-side instead.</div>
+    </section>
+
+    <section id="deploy">
+      <div class="sheet-tag">SHEET 11 / DEPLOYMENT ARCHITECTURE</div>
+      <h2>11. Deployment Architecture</h2>
+      <p>This backend is a stateful, long-running server. It needs a Node.js process host, persistent DB connections, an always-on worker process, and WebSocket support — none of which static hosting provides.</p>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Suitable</th><th>Not suitable</th></tr>
+          <tr><td>Render, Railway, Fly.io, AWS (ECS/EC2/EB), DigitalOcean App Platform, Heroku</td><td>GitHub Pages, Netlify static hosting, Vercel static export</td></tr>
+        </table>
+      </div>
+      <h3>Typical production topology</h3>
+      <pre>GitHub repo (source)
+   │  CI/CD (GitHub Actions)
+   ▼
+Render / Railway (API + Worker services)
+   │
+   ├── Neon / Supabase (Postgres)
+   ├── MongoDB Atlas (Mongo)
+   └── Upstash (Redis)</pre>
+    </section>
+
+    <section id="checklist">
+      <div class="sheet-tag">SHEET 12 / DEVELOPER TASK CHECKLIST</div>
+      <h2>12. Developer Task Checklist</h2>
+      <ol class="flow-list">
+        <li>Initialize <code>package.json</code>; install Express, TypeScript, <code>pg</code>, Mongoose, <code>ioredis</code>, BullMQ, Cloudinary SDK, <code>jsonwebtoken</code>, <code>bcrypt</code>, Zod, <code>express-rate-limit</code>.</li>
+        <li>Create <code>.env</code>; write connection modules with retry/backoff for Postgres, Mongo, Redis.</li>
+        <li>Define models/schemas for User, Problem, Project, Notification.</li>
+        <li>Implement <code>auth.middleware</code> and <code>rbac.middleware</code>.</li>
+        <li>Build Register/Login and test with Postman.</li>
+        <li>Build <code>POST /problems</code>; confirm DB insert + Redis enqueue.</li>
+        <li>Build <code>PATCH /internal/problems/:id</code>; test with the internal key header.</li>
+        <li>Write <code>worker.ts</code> as a separate process; confirm it consumes jobs and calls the internal API.</li>
+        <li>Build the <code>assign</code> route (status update + project stub).</li>
+        <li>Attach Socket.io; emit events on verify/assign/fund.</li>
+        <li>Add centralized error handling and rate limiting.</li>
+        <li>Set up CI/CD to Render/Railway with managed DB add-ons.</li>
+      </ol>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <span>BACKEND ARCHITECTURE BLUEPRINT · REV 1.0</span>
+  <span>DESIGN SPEC — NO SOURCE CODE INCLUDED</span>
+</footer>
+
+</body>
+</html>
