@@ -366,43 +366,6 @@ Fund projects
 - Make it responsive (mobile + desktop)
 - **Tech:** React, Vite, Tailwind, Mapbox, Socket.io-client
 
----
-
-```## 🔧 9. Setup Commands (For Everyone)```
-
-```### 1. Clone the Repository:```
-```bash```
-```git clone https://github.com/your-team/societal-innovation-hub.git```
-```cd societal-innovation-hub```
-```
-
-### 2. Install Dependencies:
-```bash
-npm install  # or pnpm install
-```
-
-```### 3. Start Infrastructure (Docker):```
-```bash```
-```docker-compose up -d  # Starts PostgreSQL, Redis, MongoDB```
-```
-
-### 4. Backend Developer:
-```bash
-cd apps/api
-npm run dev  # Runs on http://localhost:5000
-```
-
-```### 5. AI Developer:```
-```bash```
-```cd apps/api```
-```npm run worker  # Starts the AI worker```
-`````
-
-### 6. Frontend Developer:
-```bash
-```cd apps/web```
-```npm run dev  # Runs on http://localhost:5173```
-
 
 ## ✅ 10. Team Rules (Important!)
 
