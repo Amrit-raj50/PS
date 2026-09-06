@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Backend Architecture Blueprint</title>
+<title>SIH 2026 — Societal Innovation Portal · Architecture Blueprint</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -17,6 +17,8 @@
     --amber: #E8A33D;
     --steel: #5FA8D3;
     --line: #2C4E71;
+    --green: #7FBF9E;
+    --violet: #B79FE0;
     --max: 880px;
   }
   *{box-sizing:border-box;}
@@ -45,7 +47,7 @@
   }
   @media (max-width: 860px){
     .shell{ grid-template-columns: 1fr; }
-    .sidebar{ position:static !important; border-right:none !important; border-bottom:1px solid var(--line); }
+    .sidebar{ position:static !important; border-right:none !important; border-bottom:1px solid var(--line); height:auto !important; }
   }
 
   /* ---------- Sidebar / sheet index ---------- */
@@ -62,7 +64,14 @@
   .sidebar h2{
     font-size:15px; margin:0 0 22px; color:var(--ink); font-weight:600;
   }
-  .sheet-list{ list-style:none; margin:0; padding:0; }
+  .part-label{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.1em;
+    color: var(--part-color, var(--ink-dim));
+    margin:20px 0 6px; padding-left:8px;
+    border-left:2px solid var(--part-color, var(--line));
+  }
+  .part-label:first-of-type{ margin-top:0; }
+  .sheet-list{ list-style:none; margin:0 0 4px; padding:0; }
   .sheet-list li{ margin-bottom:2px; }
   .sheet-list a{
     display:flex; gap:10px; align-items:baseline;
@@ -83,7 +92,7 @@
   .titleblock{
     border:1px solid var(--line);
     padding:28px 30px;
-    margin-bottom:56px;
+    margin-bottom:40px;
     position:relative;
   }
   .titleblock::before, .titleblock::after,
@@ -105,7 +114,7 @@
     margin:0 0 12px; font-weight:700; color:var(--ink);
     line-height:1.15;
   }
-  .subtitle{ color:var(--ink-dim); font-size:16px; max-width:60ch; margin:0 0 22px; }
+  .subtitle{ color:var(--ink-dim); font-size:16px; max-width:64ch; margin:0 0 22px; }
   .meta-row{
     display:flex; flex-wrap:wrap; gap:24px;
     font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-dim);
@@ -113,8 +122,23 @@
   }
   .meta-row strong{ color:var(--ink); display:block; font-size:11px; margin-bottom:2px; font-weight:500;}
 
+  /* Part divider — big section break between Backend / Frontend / AI */
+  .part-divider{
+    margin:80px 0 40px; padding-top:36px;
+    border-top:2px solid var(--part-color, var(--line));
+    position:relative;
+  }
+  .part-divider .part-eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.1em;
+    color:var(--part-color, var(--steel)); margin-bottom:8px;
+  }
+  .part-divider h1{
+    font-size:clamp(24px, 3.4vw, 32px); margin:0 0 10px; color:var(--ink); font-weight:700;
+  }
+  .part-divider p{ max-width:64ch; }
+
   /* Sections */
-  section{ margin-bottom:64px; scroll-margin-top:24px; }
+  section{ margin-bottom:56px; scroll-margin-top:24px; }
   .sheet-tag{
     font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--amber);
     letter-spacing:.08em; margin-bottom:8px;
@@ -184,11 +208,22 @@
   .flow-list li::before{
     content:counter(flow);
     position:absolute; left:0; top:0;
-    width:22px; height:22px; border:1px solid var(--amber); color:var(--amber);
+    width:22px; height:22px; border:1px solid var(--flow-color, var(--amber)); color:var(--flow-color, var(--amber));
     font-family:'IBM Plex Mono', monospace; font-size:11px;
     display:flex; align-items:center; justify-content:center;
   }
   .flow-list li strong{ color:var(--ink); }
+
+  .role-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    gap:14px; margin-bottom:20px;
+  }
+  .role-card{
+    border:1px solid var(--line); padding:16px 18px;
+    background:rgba(8,27,48,.3);
+  }
+  .role-card .rc-title{ font-weight:600; color:var(--ink); font-size:14px; margin-bottom:4px; }
+  .role-card .rc-sub{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--part-color, var(--steel)); }
 
   footer{
     max-width:var(--max); margin:0 48px 60px; padding-top:24px;
@@ -204,38 +239,127 @@
 <div class="shell">
   <nav class="sidebar">
     <div class="mark">SHEET INDEX</div>
-    <h2>Backend Blueprint</h2>
+    <h2>SIH 2026 Blueprint</h2>
+
     <ul class="sheet-list">
-      <li><a href="#overview"><span class="num">01</span>System Overview</a></li>
-      <li><a href="#stack"><span class="num">02</span>Technology Stack</a></li>
-      <li><a href="#folders"><span class="num">03</span>Folder Structure</a></li>
-      <li><a href="#data"><span class="num">04</span>Data Model</a></li>
-      <li><a href="#api"><span class="num">05</span>API Specification</a></li>
-      <li><a href="#flow"><span class="num">06</span>Core Data Flow</a></li>
-      <li><a href="#security"><span class="num">07</span>Security Model</a></li>
-      <li><a href="#integration"><span class="num">08</span>Integration Contracts</a></li>
-      <li><a href="#env"><span class="num">09</span>Environment Config</a></li>
-      <li><a href="#errors"><span class="num">10</span>Error Handling</a></li>
-      <li><a href="#deploy"><span class="num">11</span>Deployment</a></li>
-      <li><a href="#checklist"><span class="num">12</span>Task Checklist</a></li>
+      <li><a href="#overview"><span class="num">00</span>Project Overview</a></li>
+    </ul>
+
+    <div class="part-label" style="--part-color:var(--steel)">PART A — BACKEND</div>
+    <ul class="sheet-list">
+      <li><a href="#be-overview"><span class="num">01</span>System Overview</a></li>
+      <li><a href="#be-stack"><span class="num">02</span>Tech Stack</a></li>
+      <li><a href="#be-folders"><span class="num">03</span>Folder Structure</a></li>
+      <li><a href="#be-data"><span class="num">04</span>Data Model</a></li>
+      <li><a href="#be-api"><span class="num">05</span>API Specification</a></li>
+      <li><a href="#be-flow"><span class="num">06</span>Core Data Flow</a></li>
+      <li><a href="#be-security"><span class="num">07</span>Security Model</a></li>
+      <li><a href="#be-integration"><span class="num">08</span>Integration Contracts</a></li>
+      <li><a href="#be-env"><span class="num">09</span>Environment Config</a></li>
+      <li><a href="#be-errors"><span class="num">10</span>Error Handling</a></li>
+      <li><a href="#be-deploy"><span class="num">11</span>Deployment</a></li>
+      <li><a href="#be-checklist"><span class="num">12</span>Task Checklist</a></li>
+    </ul>
+
+    <div class="part-label" style="--part-color:var(--green)">PART B — FRONTEND</div>
+    <ul class="sheet-list">
+      <li><a href="#fe-role"><span class="num">13</span>Developer Role</a></li>
+      <li><a href="#fe-stack"><span class="num">14</span>Tech Stack</a></li>
+      <li><a href="#fe-folders"><span class="num">15</span>Folder Structure</a></li>
+      <li><a href="#fe-pages"><span class="num">16</span>Pages &amp; Dashboards</a></li>
+      <li><a href="#fe-flow"><span class="num">17</span>User Flow</a></li>
+      <li><a href="#fe-checklist"><span class="num">18</span>Task Checklist</a></li>
+    </ul>
+
+    <div class="part-label" style="--part-color:var(--violet)">PART C — AI</div>
+    <ul class="sheet-list">
+      <li><a href="#ai-role"><span class="num">19</span>Developer Role</a></li>
+      <li><a href="#ai-stack"><span class="num">20</span>Tech Stack</a></li>
+      <li><a href="#ai-folders"><span class="num">21</span>Folder Structure</a></li>
+      <li><a href="#ai-flow"><span class="num">22</span>Worker Flow</a></li>
+      <li><a href="#ai-checklist"><span class="num">23</span>Task Checklist</a></li>
+    </ul>
+
+    <div class="part-label" style="--part-color:var(--amber)">PART D — SYSTEM</div>
+    <ul class="sheet-list">
+      <li><a href="#sys-flow"><span class="num">24</span>End-to-End Flow</a></li>
+      <li><a href="#sys-rules"><span class="num">25</span>Team Rules</a></li>
+      <li><a href="#sys-summary"><span class="num">26</span>Quick Reference</a></li>
     </ul>
   </nav>
 
   <main>
-    <div class="titleblock">
+    <div class="titleblock" id="overview">
       <span class="tl-tr"></span><span class="tl-bl"></span>
       <div class="kicker">DESIGN SPECIFICATION — NO SOURCE CODE INCLUDED</div>
-      <h1 class="title">Backend Architecture Blueprint</h1>
-      <p class="subtitle">Civic problem-reporting platform: a citizen → university → industry pipeline, routed through an AI classification worker.</p>
+      <h1 class="title">Societal Innovation Portal</h1>
+      <p class="subtitle">SIH 2026 — a citizen → university → industry pipeline for reporting and solving civic problems, routed through an AI classification worker. Citizens submit problems with photos and location; AI categorizes them; admins assign them to universities; universities propose solutions; industry funds them.</p>
       <div class="meta-row">
-        <div><strong>Sheet set</strong>01 of 12</div>
-        <div><strong>Audience</strong>Backend, DevOps, reviewers</div>
+        <div><strong>Sheet set</strong>00 of 26</div>
+        <div><strong>Parts</strong>Backend · Frontend · AI</div>
         <div><strong>Status</strong>Draft for build-out</div>
-        <div><strong>Revision</strong>1.0</div>
+        <div><strong>Revision</strong>2.0</div>
       </div>
     </div>
 
-    <section id="overview">
+    <div class="diagram">
+      <svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg">
+        <style>
+          .b1{ stroke:#7FBF9E; }
+          .b2{ stroke:#5FA8D3; }
+          .b3{ stroke:#B79FE0; }
+          .boxx{ fill:none; stroke-width:1.5; }
+          .lblx{ fill:#EAF2F8; font-family:'IBM Plex Mono', monospace; font-size:12px; }
+          .subx{ fill:#A9C2D6; font-family:'IBM Plex Mono', monospace; font-size:10px; }
+          .arrline{ stroke:#5FA8D3; stroke-width:1.5; fill:none; }
+        </style>
+        <rect class="boxx b1" x="20" y="60" width="180" height="70"/>
+        <text class="lblx" x="110" y="90" text-anchor="middle">FRONTEND</text>
+        <text class="subx" x="110" y="108" text-anchor="middle">React · Maps · Dashboards</text>
+
+        <rect class="boxx b2" x="290" y="60" width="180" height="70"/>
+        <text class="lblx" x="380" y="90" text-anchor="middle">BACKEND</text>
+        <text class="subx" x="380" y="108" text-anchor="middle">APIs · DB · Queue · Auth</text>
+
+        <rect class="boxx b3" x="560" y="60" width="180" height="70"/>
+        <text class="lblx" x="650" y="90" text-anchor="middle">AI BRAIN</text>
+        <text class="subx" x="650" y="108" text-anchor="middle">Classify · Dedupe · Score</text>
+
+        <line class="arrline" x1="200" y1="90" x2="288" y2="90" marker-end="url(#ah)"/>
+        <line class="arrline" x1="288" y1="102" x2="200" y2="102" marker-end="url(#ah)"/>
+        <line class="arrline" x1="470" y1="90" x2="558" y2="90" marker-end="url(#ah)"/>
+        <line class="arrline" x1="558" y1="102" x2="470" y2="102" marker-end="url(#ah)"/>
+
+        <text class="subx" x="380" y="30" text-anchor="middle">✅ Problem submitted → classified → assigned → funded → solved</text>
+
+        <defs>
+          <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#5FA8D3"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="diagram-caption">FIG 0.1 — the three parts of the system, and how they hand off to each other</div>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <tr><th>Part</th><th>Who uses it</th><th>What it does</th></tr>
+        <tr><td><strong>Frontend</strong></td><td>Citizens, Admins, Universities, Industries</td><td>Shows pages, forms, maps — users interact here</td></tr>
+        <tr><td><strong>Backend</strong></td><td>System (behind the scenes)</td><td>Saves data, handles logins, sends notifications, manages the queue</td></tr>
+        <tr><td><strong>AI</strong></td><td>System (behind the scenes)</td><td>Reads problem text, finds category, checks if a problem already exists</td></tr>
+      </table>
+    </div>
+
+    <div class="callout"><strong>Build order:</strong> Backend first (defines the API contract) → AI second (connects to a ready backend) → Frontend last (all APIs are stable, no rework needed).</div>
+
+    <!-- ================= PART A — BACKEND ================= -->
+    <div class="part-divider" style="--part-color:var(--steel)">
+      <div class="part-eyebrow">PART A</div>
+      <h1>Backend</h1>
+      <p>The rules layer. Every other part follows the contract the backend defines — APIs, database schema, and real-time events.</p>
+    </div>
+
+    <section id="be-overview">
       <div class="sheet-tag">SHEET 01 / SYSTEM OVERVIEW</div>
       <h2>1. System Overview</h2>
       <p>Citizens report civic problems — potholes, water pollution, and similar issues. Each report is routed through an AI worker for classification, then connected to a university (which proposes a solution) and an industry partner (which funds it).</p>
@@ -261,8 +385,6 @@
             .sub{ fill:#A9C2D6; font-family:'IBM Plex Mono', monospace; font-size:10px; }
             .line{ stroke:#5FA8D3; stroke-width:1.5; fill:none; }
             .dashed{ stroke:#E8A33D; stroke-width:1.5; fill:none; stroke-dasharray:5,4; }
-            .arrow{ fill:#5FA8D3; }
-            .arrowA{ fill:#E8A33D; }
           </style>
           <rect class="box" x="20" y="30" width="140" height="60"/>
           <text class="lbl" x="90" y="55" text-anchor="middle">Frontend</text>
@@ -281,29 +403,25 @@
           <text class="lbl" x="380" y="195" text-anchor="middle">AI Worker</text>
           <text class="sub" x="380" y="212" text-anchor="middle">separate process</text>
 
-          <!-- frontend <-> api (socket, http) -->
-          <line class="line" x1="160" y1="55" x2="298" y2="55" marker-end="url(#arrowB)"/>
-          <line class="line" x1="298" y1="65" x2="160" y2="65" marker-end="url(#arrowB)"/>
+          <line class="line" x1="160" y1="55" x2="298" y2="55" marker-end="url(#arrowB2)"/>
+          <line class="line" x1="298" y1="65" x2="160" y2="65" marker-end="url(#arrowB2)"/>
           <text class="sub" x="228" y="45" text-anchor="middle">HTTP</text>
 
-          <!-- api <-> db -->
-          <line class="line" x1="460" y1="60" x2="578" y2="60" marker-end="url(#arrowB)"/>
+          <line class="line" x1="460" y1="60" x2="578" y2="60" marker-end="url(#arrowB2)"/>
 
-          <!-- api <-> worker -->
-          <path class="dashed" d="M380,90 L380,168" marker-end="url(#arrowA)"/>
+          <path class="dashed" d="M380,90 L380,168" marker-end="url(#arrowA2)"/>
           <text class="sub" x="392" y="130">Redis queue</text>
-          <path class="line" d="M420,168 L420,90" marker-end="url(#arrowB)"/>
+          <path class="line" d="M420,168 L420,90" marker-end="url(#arrowB2)"/>
           <text class="sub" x="432" y="150">PATCH /internal</text>
 
-          <!-- socket line from api up to frontend, curved -->
-          <path class="dashed" d="M90,30 C90,-10 380,-10 380,28" marker-end="url(#arrowA)"/>
+          <path class="dashed" d="M90,30 C90,-10 380,-10 380,28" marker-end="url(#arrowA2)"/>
           <text class="sub" x="235" y="8" text-anchor="middle">Socket.io (live events)</text>
 
           <defs>
-            <marker id="arrowB" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <marker id="arrowB2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
               <path d="M0,0 L6,3 L0,6 Z" fill="#5FA8D3"/>
             </marker>
-            <marker id="arrowA" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <marker id="arrowA2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
               <path d="M0,0 L6,3 L0,6 Z" fill="#E8A33D"/>
             </marker>
           </defs>
@@ -312,26 +430,26 @@
       </div>
     </section>
 
-    <section id="stack">
+    <section id="be-stack">
       <div class="sheet-tag">SHEET 02 / TECHNOLOGY STACK</div>
       <h2>2. Technology Stack</h2>
       <div class="tablewrap">
         <table>
-          <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
-          <tr><td>Runtime</td><td><code>Node.js + TypeScript</code></td><td>Type-safe backend</td></tr>
-          <tr><td>Framework</td><td><code>Express.js</code></td><td>HTTP routing</td></tr>
-          <tr><td>Primary DB</td><td><code>PostgreSQL</code></td><td>Relational, transactional data</td></tr>
-          <tr><td>Secondary DB</td><td><code>MongoDB</code></td><td>Logs, notifications, unstructured data</td></tr>
-          <tr><td>Cache / Queue</td><td><code>Redis + BullMQ</code></td><td>Job queue, caching, session storage</td></tr>
-          <tr><td>Realtime</td><td><code>Socket.io</code></td><td>Live dashboard updates</td></tr>
-          <tr><td>File storage</td><td><code>Cloudinary</code></td><td>Image hosting for problem photos</td></tr>
-          <tr><td>Auth</td><td><code>JWT</code></td><td>Stateless authentication</td></tr>
-          <tr><td>Validation</td><td><code>Zod / Joi</code></td><td>Request payload validation</td></tr>
+          <tr><th>Technology</th><th>Why we use it</th><th>Alternative</th></tr>
+          <tr><td><code>Node.js + Express</code></td><td>Fast, easy, same language as frontend</td><td>Python (Django/Flask)</td></tr>
+          <tr><td><code>TypeScript</code></td><td>Catches errors before running</td><td>JavaScript</td></tr>
+          <tr><td><code>PostgreSQL</code></td><td>Good for relationships (users ↔ problems)</td><td>MySQL</td></tr>
+          <tr><td><code>MongoDB</code></td><td>Good for messy raw data</td><td>—</td></tr>
+          <tr><td><code>Redis</code></td><td>Fast memory for queue and cache</td><td>—</td></tr>
+          <tr><td><code>BullMQ</code></td><td>Smart queue manager (uses Redis)</td><td>RabbitMQ</td></tr>
+          <tr><td><code>JWT</code></td><td>Secure user authentication</td><td>Sessions</td></tr>
+          <tr><td><code>Socket.io</code></td><td>Real-time communication</td><td>Raw WebSockets</td></tr>
         </table>
       </div>
+      <div class="callout"><strong>Why Node.js over Python:</strong> the frontend is also JavaScript, so code and types can be shared; one language means faster onboarding; Node handles real-time (Socket.io) especially well.</div>
     </section>
 
-    <section id="folders">
+    <section id="be-folders">
       <div class="sheet-tag">SHEET 03 / FOLDER STRUCTURE</div>
       <h2>3. Folder Structure</h2>
       <pre><span class="c">apps/api/src/</span>
@@ -387,7 +505,7 @@
 └── server.ts                     <span class="k">Entry point</span></pre>
     </section>
 
-    <section id="data">
+    <section id="be-data">
       <div class="sheet-tag">SHEET 04 / DATA MODEL</div>
       <h2>4. Data Model</h2>
 
@@ -457,7 +575,7 @@
       </div>
     </section>
 
-    <section id="api">
+    <section id="be-api">
       <div class="sheet-tag">SHEET 05 / API SPECIFICATION</div>
       <h2>5. API Specification</h2>
 
@@ -510,10 +628,10 @@
       </div>
     </section>
 
-    <section id="flow">
+    <section id="be-flow">
       <div class="sheet-tag">SHEET 06 / CORE DATA FLOW</div>
       <h2>6. Core Data Flow</h2>
-      <ol class="flow-list">
+      <ol class="flow-list" style="--flow-color:var(--steel)">
         <li><strong>Citizen</strong> submits <code>POST /problems</code> → Postgres insert (status=submitted)</li>
         <li><strong>Backend</strong> pushes a job onto the Redis queue: <code>{ problemId, text }</code></li>
         <li><strong>Backend</strong> responds in under 200ms — it does not wait for classification</li>
@@ -528,7 +646,7 @@
       </ol>
     </section>
 
-    <section id="security">
+    <section id="be-security">
       <div class="sheet-tag">SHEET 07 / SECURITY MODEL</div>
       <h2>7. Security Model</h2>
       <ul>
@@ -540,7 +658,7 @@
       </ul>
     </section>
 
-    <section id="integration">
+    <section id="be-integration">
       <div class="sheet-tag">SHEET 08 / INTEGRATION CONTRACTS</div>
       <h2>8. Integration Contracts</h2>
       <div class="tablewrap">
@@ -553,7 +671,7 @@
       </div>
     </section>
 
-    <section id="env">
+    <section id="be-env">
       <div class="sheet-tag">SHEET 09 / ENVIRONMENT CONFIG</div>
       <h2>9. Environment Configuration</h2>
       <pre>DATABASE_URL=postgres://...
@@ -569,7 +687,7 @@ PORT=4000
 NODE_ENV=production</pre>
     </section>
 
-    <section id="errors">
+    <section id="be-errors">
       <div class="sheet-tag">SHEET 10 / ERROR HANDLING</div>
       <h2>10. Error Handling Strategy</h2>
       <p>Controllers wrap logic in try/catch and forward errors to <code>error.handler</code> via <code>next(err)</code>. Standard error shape:</p>
@@ -578,7 +696,7 @@ NODE_ENV=production</pre>
       <div class="callout"><strong>Do not</strong> leak stack traces or raw DB errors in production responses — log them server-side instead.</div>
     </section>
 
-    <section id="deploy">
+    <section id="be-deploy">
       <div class="sheet-tag">SHEET 11 / DEPLOYMENT ARCHITECTURE</div>
       <h2>11. Deployment Architecture</h2>
       <p>This backend is a stateful, long-running server. It needs a Node.js process host, persistent DB connections, an always-on worker process, and WebSocket support — none of which static hosting provides.</p>
@@ -599,10 +717,10 @@ Render / Railway (API + Worker services)
    └── Upstash (Redis)</pre>
     </section>
 
-    <section id="checklist">
+    <section id="be-checklist">
       <div class="sheet-tag">SHEET 12 / DEVELOPER TASK CHECKLIST</div>
       <h2>12. Developer Task Checklist</h2>
-      <ol class="flow-list">
+      <ol class="flow-list" style="--flow-color:var(--steel)">
         <li>Initialize <code>package.json</code>; install Express, TypeScript, <code>pg</code>, Mongoose, <code>ioredis</code>, BullMQ, Cloudinary SDK, <code>jsonwebtoken</code>, <code>bcrypt</code>, Zod, <code>express-rate-limit</code>.</li>
         <li>Create <code>.env</code>; write connection modules with retry/backoff for Postgres, Mongo, Redis.</li>
         <li>Define models/schemas for User, Problem, Project, Notification.</li>
@@ -618,11 +736,318 @@ Render / Railway (API + Worker services)
       </ol>
     </section>
 
+    <!-- ================= PART B — FRONTEND ================= -->
+    <div class="part-divider" style="--part-color:var(--green)">
+      <div class="part-eyebrow">PART B</div>
+      <h1>Frontend</h1>
+      <p>The face of the system. Built last, once the backend's API contract is stable, so the UI is never rebuilt against a moving target.</p>
+    </div>
+
+    <section id="fe-role">
+      <div class="sheet-tag">SHEET 13 / DEVELOPER ROLE</div>
+      <h2>13. Frontend Developer's Role</h2>
+      <p>What you need to build, and why each piece matters:</p>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Task</th><th>What it means</th><th>Why it matters</th></tr>
+          <tr><td><strong>Login / Register pages</strong></td><td>Users can sign up and sign in</td><td>First thing users see</td></tr>
+          <tr><td><strong>Problem submit form</strong></td><td>Citizens type their problem, pick a location, upload photos</td><td>The main citizen feature</td></tr>
+          <tr><td><strong>Map integration</strong></td><td>Show a map with markers for problems</td><td>Visual way to see problems</td></tr>
+          <tr><td><strong>Problem listing</strong></td><td>Show all problems in list + map view</td><td>Users can browse</td></tr>
+          <tr><td><strong>Admin dashboard</strong></td><td>Show statistics, assign problems</td><td>Admin controls everything</td></tr>
+          <tr><td><strong>University dashboard</strong></td><td>See assigned problems, submit proposals</td><td>Universities work here</td></tr>
+          <tr><td><strong>Industry portal</strong></td><td>See projects, fund them</td><td>Industries invest here</td></tr>
+          <tr><td><strong>Real-time updates</strong></td><td>Show notifications instantly</td><td>No page refresh needed</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="fe-stack">
+      <div class="sheet-tag">SHEET 14 / TECHNOLOGY STACK</div>
+      <h2>14. Technology Stack</h2>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Technology</th><th>Why we use it</th><th>Alternative</th></tr>
+          <tr><td><code>React 18</code></td><td>Most popular, lots of help online</td><td>Vue.js, Angular</td></tr>
+          <tr><td><code>Vite</code></td><td>Fast development and builds</td><td>Webpack, Create React App</td></tr>
+          <tr><td><code>Tailwind CSS</code></td><td>Quick styling, no separate CSS file</td><td>Bootstrap, Material UI</td></tr>
+          <tr><td><code>shadcn/ui</code></td><td>Ready-made, accessible components</td><td>Material UI, Ant Design</td></tr>
+          <tr><td><code>Mapbox GL JS</code></td><td>Interactive maps with markers</td><td>Leaflet, Google Maps</td></tr>
+          <tr><td><code>Axios</code></td><td>Make API calls to backend</td><td>Fetch API</td></tr>
+          <tr><td><code>Socket.io-client</code></td><td>Receive real-time updates</td><td>—</td></tr>
+          <tr><td><code>React Hook Form</code></td><td>Easy form validation</td><td>Formik</td></tr>
+          <tr><td><code>Zod</code></td><td>Validate form data</td><td>Yup, Joi</td></tr>
+          <tr><td><code>Recharts</code></td><td>Dashboard charts</td><td>Chart.js, D3.js</td></tr>
+          <tr><td><code>Zustand</code></td><td>State management</td><td>Redux, Context API</td></tr>
+        </table>
+      </div>
+      <div class="callout"><strong>Why React over alternatives:</strong> most popular, so lots of help online; tons of ready-made components; works well with TypeScript; easy to find developers who already know it.</div>
+    </section>
+
+    <section id="fe-folders">
+      <div class="sheet-tag">SHEET 15 / FOLDER STRUCTURE</div>
+      <h2>15. Folder Structure</h2>
+      <pre><span class="c">apps/web/src/</span>
+│
+├── api/
+│   ├── client.ts                 <span class="k">Axios instance, base URL, auth header injection</span>
+│   ├── problems.api.ts           <span class="k">submitProblem, listProblems, getProblem, assignProblem</span>
+│   ├── projects.api.ts           <span class="k">submitProposal, fundProject</span>
+│   └── auth.api.ts               <span class="k">login, register, getMe</span>
+│
+├── pages/
+│   ├── auth/                     Login, Register
+│   ├── citizen/                  SubmitProblem, MyProblems
+│   ├── admin/                    Dashboard, AssignProblem, Stats
+│   ├── university/                AssignedProblems, SubmitProposal
+│   └── industry/                  ProjectList, FundProject
+│
+├── components/
+│   ├── forms/                    ProblemForm, ProposalForm (React Hook Form + Zod)
+│   ├── map/                      MapView, ProblemMarker (Mapbox GL JS)
+│   ├── dashboard/                StatCard, CategoryChart (Recharts)
+│   └── ui/                       shadcn/ui-based buttons, dialogs, inputs
+│
+├── hooks/
+│   ├── useAuth.ts                 <span class="k">Reads/writes auth state from Zustand store</span>
+│   ├── useSocket.ts                <span class="k">Connects Socket.io-client, subscribes to rooms</span>
+│   └── useProblems.ts              <span class="k">Data fetching + caching for problem lists</span>
+│
+├── store/
+│   └── auth.store.ts               <span class="k">Zustand store: user, token, role</span>
+│
+├── routes/
+│   └── AppRouter.tsx                <span class="k">Role-gated route definitions</span>
+│
+└── main.tsx                         <span class="k">Vite entry point</span></pre>
+    </section>
+
+    <section id="fe-pages">
+      <div class="sheet-tag">SHEET 16 / PAGES &amp; DASHBOARDS</div>
+      <h2>16. Pages &amp; Dashboards by Role</h2>
+      <div class="role-grid">
+        <div class="role-card" style="--part-color:var(--green)">
+          <div class="rc-title">Citizen</div>
+          <div class="rc-sub">Submit problem · My problems</div>
+        </div>
+        <div class="role-card" style="--part-color:var(--green)">
+          <div class="rc-title">Admin</div>
+          <div class="rc-sub">Dashboard · Assign · Stats</div>
+        </div>
+        <div class="role-card" style="--part-color:var(--green)">
+          <div class="rc-title">University</div>
+          <div class="rc-sub">Assigned problems · Submit proposal</div>
+        </div>
+        <div class="role-card" style="--part-color:var(--green)">
+          <div class="rc-title">Industry</div>
+          <div class="rc-sub">Project list · Fund project</div>
+        </div>
+      </div>
+      <p>Every dashboard is protected by <code>AppRouter</code>'s role check, sourced from the JWT claim stored in the Zustand auth store — the same claim the backend's RBAC middleware checks.</p>
+    </section>
+
+    <section id="fe-flow">
+      <div class="sheet-tag">SHEET 17 / USER FLOW</div>
+      <h2>17. Frontend Flow</h2>
+      <ol class="flow-list" style="--flow-color:var(--green)">
+        <li>User opens the website</li>
+        <li>Logs in or registers</li>
+        <li><strong>Citizen</strong> path → submits a problem, tracks its status</li>
+        <li><strong>Admin</strong> path → views the dashboard, assigns problems to universities</li>
+        <li><strong>University</strong> path → views assigned problems, submits a proposal</li>
+        <li><strong>Industry</strong> path → views proposals, funds a project</li>
+        <li>Every role sees live updates the instant the backend emits a Socket.io event — no manual refresh</li>
+      </ol>
+    </section>
+
+    <section id="fe-checklist">
+      <div class="sheet-tag">SHEET 18 / DEVELOPER TASK CHECKLIST</div>
+      <h2>18. Developer Task Checklist</h2>
+      <ol class="flow-list" style="--flow-color:var(--green)">
+        <li>Scaffold with Vite + React 18 + TypeScript; set up Tailwind and shadcn/ui.</li>
+        <li>Build the Axios client with base URL and auth-header interceptor.</li>
+        <li>Build Login/Register pages wired to <code>/api/auth</code>.</li>
+        <li>Build the problem submit form (React Hook Form + Zod) with photo upload and Mapbox location picker.</li>
+        <li>Build problem listing (list + map view) with filters.</li>
+        <li>Build the Admin dashboard: stats (Recharts) and the assign action.</li>
+        <li>Build University and Industry dashboards against the same API contract.</li>
+        <li>Wire up Socket.io-client; subscribe to role-specific rooms for live notifications.</li>
+        <li>Add role-gated routing in <code>AppRouter</code>.</li>
+        <li>Test responsiveness across mobile and desktop.</li>
+      </ol>
+    </section>
+
+    <!-- ================= PART C — AI ================= -->
+    <div class="part-divider" style="--part-color:var(--violet)">
+      <div class="part-eyebrow">PART C</div>
+      <h1>AI</h1>
+      <p>The classification brain. Runs as a separate worker process, listens to the backend's queue, and reports results back through the internal API.</p>
+    </div>
+
+    <section id="ai-role">
+      <div class="sheet-tag">SHEET 19 / DEVELOPER ROLE</div>
+      <h2>19. AI Developer's Role</h2>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Task</th><th>What it means</th><th>Why it matters</th></tr>
+          <tr><td><strong>BullMQ worker</strong></td><td>Listen to the queue and pick up jobs</td><td>This is how the AI gets problems to analyze</td></tr>
+          <tr><td><strong>Classifier</strong></td><td>Read text and find category</td><td>"Water", "Road", "Health", etc.</td></tr>
+          <tr><td><strong>Priority scorer</strong></td><td>Find if a problem is urgent</td><td>"HIGH" if words like "emergency" appear</td></tr>
+          <tr><td><strong>Dedupe check</strong></td><td>Check if the same problem already exists</td><td>Avoid duplicate work</td></tr>
+          <tr><td><strong>Internal API call</strong></td><td>Send results back to the backend</td><td>Updates the problem's status</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="ai-stack">
+      <div class="sheet-tag">SHEET 20 / TECHNOLOGY STACK</div>
+      <h2>20. Technology Stack</h2>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Technology</th><th>Why we use it</th><th>Alternative</th></tr>
+          <tr><td><code>Node.js + TypeScript</code></td><td>Same as backend, easy integration</td><td>Python (recommended for ML)</td></tr>
+          <tr><td><code>BullMQ</code></td><td>Reads jobs from the queue</td><td>—</td></tr>
+          <tr><td><code>Axios</code></td><td>Makes API calls to the backend</td><td>Fetch API</td></tr>
+          <tr><td><code>NLTK / Natural</code></td><td>NLP library for text processing</td><td>Transformers.js</td></tr>
+          <tr><td><code>pgvector</code></td><td>Checks similarity for duplicates</td><td>Elasticsearch</td></tr>
+          <tr><td><code>OpenAI API</code></td><td>Fallback when the local model is unsure</td><td>Gemini API</td></tr>
+        </table>
+      </div>
+      <div class="callout"><strong>Why Node.js and not Python for AI:</strong> code can be shared with the backend, no new language to learn, and it's faster to integrate — the rule-based classifier and dedupe check here don't need Python's ML ecosystem.</div>
+    </section>
+
+    <section id="ai-folders">
+      <div class="sheet-tag">SHEET 21 / FOLDER STRUCTURE</div>
+      <h2>21. Folder Structure</h2>
+      <pre><span class="c">apps/ai-worker/src/</span>
+│
+├── config/
+│   ├── redis.client.ts            <span class="k">Same Redis instance as backend's queue</span>
+│   └── env.ts                     <span class="k">INTERNAL_API_KEY, BACKEND_URL</span>
+│
+├── worker/
+│   └── classification.worker.ts   <span class="k">BullMQ worker: listens on queue:classification</span>
+│
+├── classifier/
+│   ├── categoryClassifier.ts      <span class="k">Rule-based keyword → category mapping</span>
+│   └── priorityScorer.ts          <span class="k">Keyword-based urgency scoring</span>
+│
+├── dedupe/
+│   └── similarityCheck.ts         <span class="k">pgvector query against existing problems</span>
+│
+├── client/
+│   └── internalApi.client.ts      <span class="k">Axios wrapper for PATCH /internal/problems/:id</span>
+│
+└── worker.ts                       <span class="k">Entry point — starts the BullMQ worker process</span></pre>
+    </section>
+
+    <section id="ai-flow">
+      <div class="sheet-tag">SHEET 22 / WORKER FLOW</div>
+      <h2>22. AI Worker Flow</h2>
+      <ol class="flow-list" style="--flow-color:var(--violet)">
+        <li>Backend queue delivers a job to the AI worker</li>
+        <li>Worker reads the text — e.g. <code>"water pollution in pond"</code></li>
+        <li>Classifier finds the category — e.g. <code>"Water & Sanitation"</code></li>
+        <li>Dedupe check runs a similarity search — no match found, continues</li>
+        <li>Priority scorer finds urgency — e.g. <code>"HIGH"</code></li>
+        <li>Worker sends the result to the backend's internal API</li>
+        <li>Backend updates the database and notifies the admin dashboard</li>
+      </ol>
+    </section>
+
+    <section id="ai-checklist">
+      <div class="sheet-tag">SHEET 23 / DEVELOPER TASK CHECKLIST</div>
+      <h2>23. Developer Task Checklist</h2>
+      <ol class="flow-list" style="--flow-color:var(--violet)">
+        <li>Set up a Node.js + TypeScript project sharing the Redis connection config with the backend.</li>
+        <li>Build the BullMQ worker that listens on <code>queue:classification</code>.</li>
+        <li>Build the rule-based category classifier and priority scorer.</li>
+        <li>Set up <code>pgvector</code> and build the similarity/dedupe check.</li>
+        <li>Build the internal API client (Axios) with the <code>x-internal-api-key</code> header.</li>
+        <li>Add an OpenAI/Gemini fallback for low-confidence classifications.</li>
+        <li>Test end-to-end: submit a problem from the frontend, confirm the worker classifies and updates status.</li>
+      </ol>
+    </section>
+
+    <!-- ================= PART D — SYSTEM ================= -->
+    <div class="part-divider" style="--part-color:var(--amber)">
+      <div class="part-eyebrow">PART D</div>
+      <h1>System</h1>
+      <p>How the three parts hand off to each other end to end, and the ground rules for working across them.</p>
+    </div>
+
+    <section id="sys-flow">
+      <div class="sheet-tag">SHEET 24 / END-TO-END FLOW</div>
+      <h2>24. Complete End-to-End Flow</h2>
+
+      <h3>1. Citizen submits a problem</h3>
+      <ol class="flow-list" style="--flow-color:var(--amber)">
+        <li><strong>Citizen</strong> types the problem, picks a location, uploads a photo</li>
+        <li><strong>Frontend</strong> sends the data to the backend API</li>
+        <li><strong>Backend</strong> saves the problem, queues it, and returns "Processing" instantly</li>
+        <li><strong>AI Worker</strong> classifies it, checks duplicates, sets priority</li>
+        <li><strong>Backend</strong> updates the database and notifies the Admin dashboard in real time</li>
+      </ol>
+
+      <h3>2. Admin assigns the problem</h3>
+      <ol class="flow-list" style="--flow-color:var(--amber)">
+        <li><strong>Admin</strong> clicks "Assign to University"</li>
+        <li><strong>Backend</strong> updates status to <code>ASSIGNED</code> and notifies the University dashboard</li>
+      </ol>
+
+      <h3>3. University submits a proposal</h3>
+      <ol class="flow-list" style="--flow-color:var(--amber)">
+        <li><strong>University</strong> forms a team, writes a proposal, submits it</li>
+        <li><strong>Backend</strong> saves the proposal and notifies the Industry portal</li>
+      </ol>
+
+      <h3>4. Industry funds the project</h3>
+      <ol class="flow-list" style="--flow-color:var(--amber)">
+        <li><strong>Industry</strong> clicks "Fund This Project"</li>
+        <li><strong>Backend</strong> updates status to <code>ACTIVE</code> and notifies everyone — the citizen sees their problem is being solved, the university sees the project approved, the admin sees it funded</li>
+      </ol>
+    </section>
+
+    <section id="sys-rules">
+      <div class="sheet-tag">SHEET 25 / TEAM RULES</div>
+      <h2>25. Team Rules</h2>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Rule</th><th>Why it matters</th></tr>
+          <tr><td><strong>API contract first</strong></td><td>Backend and frontend agree on the JSON format before coding</td></tr>
+          <tr><td><strong>Don't break the flow</strong></td><td>If you change an API, tell everyone immediately</td></tr>
+          <tr><td><strong>Internal API is secret</strong></td><td>Only the AI worker calls it — keep the key safe</td></tr>
+          <tr><td><strong>Test before merge</strong></td><td>Always test your code before pushing</td></tr>
+          <tr><td><strong>Ask questions</strong></td><td>If confused, ask — better than making mistakes</td></tr>
+          <tr><td><strong>Save demo data</strong></td><td>Add realistic demo data so the final demo looks impressive</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="sys-summary">
+      <div class="sheet-tag">SHEET 26 / QUICK REFERENCE</div>
+      <h2>26. One-Line Summary for Everyone</h2>
+      <div class="role-grid">
+        <div class="role-card" style="--part-color:var(--steel)">
+          <div class="rc-title">Backend</div>
+          <div class="rc-sub">Make APIs, save data, manage the queue, handle real-time</div>
+        </div>
+        <div class="role-card" style="--part-color:var(--green)">
+          <div class="rc-title">Frontend</div>
+          <div class="rc-sub">Build the UI, connect to APIs, show real-time updates</div>
+        </div>
+        <div class="role-card" style="--part-color:var(--violet)">
+          <div class="rc-title">AI</div>
+          <div class="rc-sub">Read text, find category, check duplicates, send results back</div>
+        </div>
+      </div>
+    </section>
+
   </main>
 </div>
 
 <footer>
-  <span>BACKEND ARCHITECTURE BLUEPRINT · REV 1.0</span>
+  <span>SIH 2026 · SOCIETAL INNOVATION PORTAL — REV 2.0</span>
   <span>DESIGN SPEC — NO SOURCE CODE INCLUDED</span>
 </footer>
 
