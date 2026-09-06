@@ -368,12 +368,12 @@ Fund projects
 
 ---
 
-## 🔧 9. Setup Commands (For Everyone)
+```## 🔧 9. Setup Commands (For Everyone)```
 
-### 1. Clone the Repository:
-```bash
-git clone https://github.com/your-team/societal-innovation-hub.git
-cd societal-innovation-hub
+```### 1. Clone the Repository:```
+```bash```
+```git clone https://github.com/your-team/societal-innovation-hub.git```
+```cd societal-innovation-hub```
 ```
 
 ### 2. Install Dependencies:
@@ -381,9 +381,9 @@ cd societal-innovation-hub
 npm install  # or pnpm install
 ```
 
-### 3. Start Infrastructure (Docker):
-```bash
-docker-compose up -d  # Starts PostgreSQL, Redis, MongoDB
+```### 3. Start Infrastructure (Docker):```
+```bash```
+```docker-compose up -d  # Starts PostgreSQL, Redis, MongoDB```
 ```
 
 ### 4. Backend Developer:
@@ -392,19 +392,17 @@ cd apps/api
 npm run dev  # Runs on http://localhost:5000
 ```
 
-### 5. AI Developer:
-```bash
-cd apps/api
-npm run worker  # Starts the AI worker
-```
+```### 5. AI Developer:```
+```bash```
+```cd apps/api```
+```npm run worker  # Starts the AI worker```
+`````
 
 ### 6. Frontend Developer:
 ```bash
-cd apps/web
-npm run dev  # Runs on http://localhost:5173
-```
+```cd apps/web```
+```npm run dev  # Runs on http://localhost:5173```
 
----
 
 ## ✅ 10. Team Rules (Important!)
 
@@ -417,7 +415,6 @@ npm run dev  # Runs on http://localhost:5173
 | **Ask Questions** | If confused, ask. Better than making mistakes! |
 | **Save Demo Data** | Add realistic demo data so the final demo looks impressive |
 
----
 
 ## 🎤 11. One-Line Summary for Everyone
 
@@ -426,6 +423,4 @@ npm run dev  # Runs on http://localhost:5173
 | **Backend** | Make APIs, save data, manage queue, handle real-time |
 | **AI** | Read text, find category, check duplicates, send results back |
 | **Frontend** | Build beautiful UI, connect to APIs, show real-time updates |
-
----
 
